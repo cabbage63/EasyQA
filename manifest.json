@@ -1,0 +1,23 @@
+{
+    "name": "EasyQA",
+    "version": "0.1",
+    "manifest_version": 2,
+
+    "description": "EasyQA"
+
+    "short_name": "EQA",
+    "author": "cabbage",
+    "homepage_url": "https://github.com/cabbage63",
+
+    "permissions": ["storage","tabs"],
+    "web_accessible_resources": ["css/search.css"],
+    "options_ui": {
+        "page": "options.html",
+        "chrome_style": true
+    },
+    "browser_action": {
+    "default_icon": "image/icon19.png", // required
+    "default_title": "EasyQA",      // optional; shown in tooltip
+    "default_popup": "popup.html"        // optional
+  }
+}
