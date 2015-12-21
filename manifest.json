@@ -9,10 +9,21 @@
     "author": "cabbage",
     "homepage_url": "https://github.com/cabbage63",
 
-    "permissions": ["storage","tabs"],
+    "web_accessible_resources": ["css/mystyles.css"],
+    "permissions": ["storage","tabs",
+      "http://*/*",
+      "https://*/*"],
     "browser_action": {
     "default_icon": "image/icon19.png", // required
     "default_title": "EasyQA",      // optional; shown in tooltip
     "default_popup": "popup.html"        // optional
-  }
+  },
+    "background": {
+    "scripts": ["background.js", "jquery.min.js"]
+  },
+    "content_scripts": [{
+    "matches": ["*://*/*"],
+    "js": ["jquery.min.js","content.js"],
+    "run_at":"document_end"
+  }]
 }
