@@ -1,8 +1,10 @@
 //backgroundからのメッセージを受信
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-	console.log(sender.tab ?
+	/*content <-> backgroundどちら側からのメッセージか判別
+	onsole.log(sender.tab ?
 		"from a content script:" + sender.tab.url :
 		"from the extension");
+	*/
 	switch(message.command){
 		case "highlightId":
 		turnOn(message.status);
@@ -57,20 +59,26 @@ function turnOn(status){
 
 
 function analyse(){
-	var spt = "";
+	var pageObj = "";
+	var test = "";
 	$(".hlOn").each(function(i, elem) {
 		switch($(elem)[0].nodeName){
 			case "INPUT":
-				spt += genScriptForInput($(elem).attr("type").toString(), $(elem).attr("id").toString());
+				pageObj += genPageObjForInput($(elem).attr("type").toString(), $(elem).attr("id").toString());
+				test += genTestScriptForInput($(elem).attr("type").toString(), $(elem).attr("id").toString());
 				break;
 			case "SELECT":
-				spt += genScriptForSelect($(elem).attr("id").toString());
+				pageObj += genPageObjForSelect($(elem).attr("id").toString());
+				test += genTestScriptForSelect($(elem).attr("id").toString());
 		}
 	});
-	console.log(spt)
+	console.log("////PageObject////");
+	console.log(pageObj);
+	console.log("////TestScript////");
+	console.log(test);
 }
 
-function genScriptForInput(type, id){
+function genPageObjForInput(type, id){
 
 	//IDをキャメルケースに変更
 	var camelId = snakeToCamel(id);
@@ -80,19 +88,50 @@ function genScriptForInput(type, id){
 		case "text":
 			return 'public static void set' + camelId + '(String value){ Selenide.$("#' + id + '").setValue(value); }\n';
 			break;
+		case "password":
+			return 'public static void set' + camelId + '(String value){ Selenide.$("#' + id + '").setValue(value); }\n';
+			break;
 		case "radio":
-
+			return 'public static void set' + camelId + '(boolean value){ if(value){ Selenide.$("#' + id + '").click();} }\n';
 			break;
 	}
 }
 
-function genScriptForSelect(id){
+function genTestScriptForInput(type, id){
+
+	//IDをキャメルケースに変更
+	var camelId = snakeToCamel(id);
+	camelId = camelId.charAt(0).toUpperCase() + camelId.slice(1);
+
+	switch(type){
+		case "text":
+			return 'HogePage.set' + camelId + '("");\n';
+			break;
+		case "password":
+			return 'HogePage.set' + camelId + '("");\n';
+			break;
+		case "radio":
+			return 'HogePage.set' + camelId + '();\n';
+			break;
+	}
+}
+
+function genPageObjForSelect(id){
 
 	//IDをキャメルケースに変更
 	var camelId = snakeToCamel(id);
 	camelId = camelId.charAt(0).toUpperCase() + camelId.slice(1);
 
 	return 'public static void set' + camelId + '(String value){ Selenide.$("#' + id + '").selectOption(value); }\n';
+}
+
+function genTestScriptForSelect(id){
+
+	//IDをキャメルケースに変更
+	var camelId = snakeToCamel(id);
+	camelId = camelId.charAt(0).toUpperCase() + camelId.slice(1);
+
+	return 'HogePage.set' + camelId + '("");\n';
 }
 
 function snakeToCamel(text){
